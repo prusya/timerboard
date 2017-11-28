@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"time"
-	"wdwg/timeboard/db"
 )
 
 type User struct {
@@ -36,7 +35,7 @@ func dbDeleteUser() error {
 func dbUpdateUser() () {}
 
 func dbCreateUser(name string, canRead bool, canPost bool,
-	isAdmin bool) (error) {
+	isAdmin bool) error {
 	user := User{
 		Name:    name,
 		CanRead: canRead,
