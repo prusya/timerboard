@@ -1,5 +1,7 @@
 # Custom
 .idea/
+*.db
+*.lock
 
 # Binaries for programs and plugins
 *.exe
