@@ -2,5 +2,7 @@
   "port": "8080",
   "eve_client_id": "",
   "eve_client_secret": "",
-  "eve_callback": ""
+  "eve_callback": "",
+  "sessions_key": "",
+  "gothic_key": ""
 }
