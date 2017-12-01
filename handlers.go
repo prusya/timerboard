@@ -4,7 +4,9 @@ import (
 	"net/http"
 	"html/template"
 	"github.com/markbates/goth/gothic"
-	"os/user"
+	"strconv"
+	"encoding/json"
+	"github.com/gorilla/mux"
 )
 
 var templates map[string]*template.Template
@@ -56,7 +58,7 @@ func GetEveCallbackHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetLogoutHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := cookieStore.Get(r, "auth")
-	for key, _ := range session.Values {
+	for key := range session.Values {
 		delete(session.Values, key)
 	}
 	session.Save(r, w)
@@ -110,6 +112,7 @@ func GetTimersHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Forbidden", http.StatusForbidden)
 		return
 	}
+
 	timers, err := dbGetTimers()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -120,8 +123,69 @@ func GetTimersHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(j)
 }
 
-func PostTimersHandler(w http.ResponseWriter, r *http.Request) {}
+func PostTimersHandler(w http.ResponseWriter, r *http.Request) {
+	user, err := getUserFromSession(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !user.CanPost {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
 
-func DeleteTimersHandler(w http.ResponseWriter, r *http.Request) {}
+	r.ParseForm()
+	days, err := strconv.Atoi(r.Form["daysleft"][0])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	hours, err := strconv.Atoi(r.Form["hoursleft"][0])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	minutes, err := strconv.Atoi(r.Form["minutesleft"][0])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = dbCreateTimer(r.Form["regioninput"][0], r.Form["systeminput"][0],
+		r.Form["structureinput"][0], r.Form["rftypeinput"][0],
+		r.Form["commentinput"][0], days, hours, minutes)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func DeleteTimersHandler(w http.ResponseWriter, r *http.Request) {
+	user, err := getUserFromSession(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !user.CanPost {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = dbDeleteTimer(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}

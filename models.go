@@ -79,7 +79,19 @@ func dbGetTimers() ([]Timer, error) {
 	return timers, nil
 }
 
-func dbDeleteTimer() error {
+func dbDeleteTimer(id int) error {
+	var timer Timer
+
+	err := db.One("ID", id, &timer)
+	if err != nil {
+		return err
+	}
+
+	err = db.DeleteStruct(&timer)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
