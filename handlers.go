@@ -15,8 +15,12 @@ func init() {
 	if templates == nil {
 		templates = make(map[string]*template.Template)
 	}
-	templates["index"] = template.Must(template.ParseFiles("static/index.html"))
-	templates["users"] = template.Must(template.ParseFiles("static/users.html"))
+	templates["index"] = template.Must(
+		template.New("index.html").Delims("[[", "]]").
+			ParseFiles("static/index.html"))
+	templates["users"] = template.Must(
+		template.New("users.html").Delims("[[", "]]").
+			ParseFiles("static/users.html"))
 }
 
 func getUserFromSession(r *http.Request) (User, error) {
@@ -37,7 +41,7 @@ func GetIndexHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	err = templates["index"].ExecuteTemplate(w, "index", user)
+	err = templates["index"].ExecuteTemplate(w, "index.html", user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

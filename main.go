@@ -65,5 +65,9 @@ func main() {
 	r.HandleFunc("/timers", PostTimersHandler).Methods("POST")
 	r.HandleFunc("/timers/{id}", DeleteTimersHandler).Methods("DELETE")
 
+	r.PathPrefix("/js/").Handler(http.FileServer(http.Dir("./static/")))
+	r.PathPrefix("/css/").Handler(http.FileServer(http.Dir("./static/")))
+	r.PathPrefix("/fonts/").Handler(http.FileServer(http.Dir("./static/")))
+
 	http.ListenAndServe(":"+config.Port, r)
 }
