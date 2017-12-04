@@ -237,6 +237,21 @@
 
     <div class="row"><span>&nbsp;</span></div>
 
+    <!--Login with Eve Online button-->
+    [[if not .Name]]
+    <table class="table table-hover" id="custom_timers">
+        <thead>
+        <tr>
+            <a href="/auth/eveonline">
+                <img src="http://midas22.ru/static/img/EVE_SSO_Login_Buttons_Large_Black.png"
+                     alt="Log in with EVE Online">
+            </a>
+        </tr>
+        </thead>
+        <tbody>
+    </tbody>
+    </table>
+    [[end]]
 
     <div class="row">
         <div class="col-sm-12">
@@ -257,8 +272,12 @@
         <col style="width:12%">
         <col style="width:12%">
         <col style="width:15%">
+        [[if .CanPost]]
         <col style="width:30%">
         <col style="width:5%">
+        [[else]]
+        <col style="width:35%">
+        [[end]]
 
         <thead>
         <tr>
@@ -280,25 +299,11 @@
             <th><a href="#" onClick='custom_sort("c_comment");'>Comment
                 <span style="float:none;" id="c_comment"></span></a>
             </th>
+            [[if .CanPost]]
             <th>
                 <span style="float:none;" id="c_comment">Edit/Delete</span>
             </th>
-        </tr>
-        </thead>
-        <tbody>
-    </tbody>
-    </table>
-    [[end]]
-
-    <!--Login with Eve Online button-->
-    [[if not .Name]]
-    <table class="table table-hover" id="custom_timers">
-        <thead>
-        <tr>
-            <a href="/auth/eveonline">
-                <img src="http://midas22.ru/static/img/EVE_SSO_Login_Buttons_Large_Black.png"
-                     alt="Log in with EVE Online">
-            </a>
+            [[end]]
         </tr>
         </thead>
         <tbody>
@@ -362,7 +367,6 @@
     </tbody>
     </table>
 
-
     <script type="text/template" id="timer_template">
         <tr id="{{ id }}" class="timer_row" data-tags="{{ tags }}" data-system="{{ system }}">
             <td class="type">{{ type }}</td>
@@ -383,6 +387,7 @@
             <td class="c_reinforce_type">{{ reinforce_type }}</td>
             <td class="c_time_left">{{ time_left }}<span id="c_remaining.{{ id }}" style="font-family: monospace;"></span></td>
             <td class="c_comment">{{ comment }}</td>
+            [[if .CanPost]]
             <td class="edit text-center">
                 <button class="btn btn-default"
                         style="padding: 0 0 0 0;width: 30px; height: 30px"
@@ -396,6 +401,7 @@
                     <i class="fa fa-trash" ></i>
                 </button>
             </td>
+            [[end]]
         </tr>
     </script>
 
@@ -513,7 +519,7 @@
 	    });
 
         var searchtags = ["uncontested", "active", "upcoming", "start"];
-        var defenders = ["Infinity Space.", "Ultimate Space", "Digital Vendetta", "Shadow of xXDEATHXx", "Nemesis Enterprises.", "The Explicit Alliance", "Da Imbalance", "RAZOR Alliance", "CyberSphere", "Blue Sun Interstellar Technologies", "SOLAR FLEET", "inPanic", "TERRA REGNUM", "Badfellas Inc."];
+        var defenders = [];
 
         function addsearchtag(t) {
             if (searchtags.indexOf(t) == -1) {
@@ -600,7 +606,6 @@
         var c_sortkey = "c_time_left";
         var c_sort_asc = true;
 
-
         function do_sort() {
             $(".timer_row").tsort("."+sortkey, {order: sort_asc ? "asc" : "desc"});
         }
@@ -672,11 +677,7 @@
 
         function custom_timer_to_row(timer) {
             var template = $("#custom_timer_template").html();
-            // console.log("TEMPLATE")
-            // console.log(template)
             var completed = Mustache.to_html(template, timer);
-            // console.log("completed")
-            // console.log(completed)
             $('#custom_timers tbody').append(completed);
         }
 
@@ -702,7 +703,7 @@
             cache: false,
             dataType: 'json',
             success: function (data) {
-                console.log("SUCCESS")
+                console.log("Get custom timers SUCCESS")
                 console.log(data)
                 data.forEach(function(e){
                     var timer = {
@@ -716,32 +717,28 @@
                     };
                     custom_timer_to_row(timer);
                     custom_add_timer(timer);
-
                 });
                 custom_do_sort();
             },
             error: function (data) {
-                console.log("ERROR")
+                console.log("Get custom timers FAILURE")
                 console.log(data)
             }
         });
 
-
-
-
-    function pad(n, width, z) {
-        z = z || '0';
-        n = n + '';
-        return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-    };
+        function pad(n, width, z) {
+            z = z || '0';
+            n = n + '';
+            return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+        };
 
         NProgress.start(); //start the loading bar on first use
 
         var timerBuffer = {};
 
         // new stuff
-        // websocket = new ReconnectingWebSocket("wss://api.pizza.moe/diffstream/sovereignty/campaigns/");
-        websocket = new ReconnectingWebSocket("");
+        websocket = new ReconnectingWebSocket("wss://api.pizza.moe/diffstream/sovereignty/campaigns/");
+        // websocket = new ReconnectingWebSocket("");
         websocket.onopen = function(evt) {  };
         websocket.onclose = function(evt) {  };
         websocket.onmessage = function(evt) {
@@ -919,7 +916,6 @@
 			}
 		    });
 
-
 		    $({animatedVal: 0}).animate({animatedVal: uncontested}, {
 			duration: 200,
 			easing: "swing",
@@ -958,8 +954,6 @@
         }, 10000);
 	$(".tagit input").focus();
         sort("time");
-
-
     </script>
 
 </div>

@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"encoding/json"
 	"github.com/gorilla/mux"
+	"github.com/asdine/storm"
 )
 
 var templates map[string]*template.Template
@@ -32,6 +33,9 @@ func getUserFromSession(r *http.Request) (User, error) {
 	} else {
 		user = User{}
 	}
+	if err == storm.ErrNotFound {
+		err = nil
+	}
 	return user, err
 }
 
@@ -54,9 +58,21 @@ func GetEveCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	var storedUser User
+	err = db.One("Name", user.NickName, &storedUser)
+	if err == storm.ErrNotFound {
+		err = dbCreateUser(user.NickName, false, false, false)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+
 	session, _ := cookieStore.Get(r, "auth")
 	session.Values["name"] = user.NickName
 	session.Save(r, w)
+
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
@@ -112,6 +128,27 @@ func PostUsersHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	r.ParseForm()
+
+	var canRead bool
+	if _, ok := r.Form["can_read"]; ok {
+		canRead = true
+	}
+	var canPost bool
+	if _, ok := r.Form["can_post"]; ok {
+		canPost = true
+	}
+	var isAdmin bool
+	if _, ok := r.Form["is_admin"]; ok {
+		isAdmin = true
+	}
+
+	err = dbUpdateUser(r.Form["name"][0], canRead, canPost, isAdmin)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusForbidden)
+		return
+	}
+
+	http.Redirect(w, r, "/users", http.StatusSeeOther)
 }
 
 func GetTimersHandler(w http.ResponseWriter, r *http.Request) {

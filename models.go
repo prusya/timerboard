@@ -32,7 +32,24 @@ func dbDeleteUser() error {
 	return nil
 }
 
-func dbUpdateUser() () {}
+func dbUpdateUser(name string, canRead bool, canPost bool,
+	isAdmin bool) error {
+	var user User
+
+	err := db.One("Name", name, &user)
+	if err != nil {
+		return err
+	}
+	user.CanRead = canRead
+	user.CanPost = canPost
+	user.IsAdmin = isAdmin
+	err = db.Save(&user)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func dbCreateUser(name string, canRead bool, canPost bool,
 	isAdmin bool) error {
@@ -109,7 +126,7 @@ func dbUpdateTimer(id int, region string, system string, structureType string,
 		time.Hour*time.Duration(hoursLeft) +
 		time.Minute*time.Duration(minutesLeft))
 	err = db.Update(&Timer{
-		ID:   id,
+		ID:            id,
 		Region:        region,
 		System:        system,
 		StructureType: structureType,
