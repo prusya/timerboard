@@ -229,12 +229,13 @@
     <!--Table of custom timers-->
     [[if .CanRead]]
     <table class="table table-hover" id="custom_timers">
+        <col style="width:13%">
+        <col style="width:13%">
+        <col style="width:12%">
+        <col style="width:12%">
         <col style="width:15%">
-        <col style="width:15%">
-        <col style="width:15%">
-        <col style="width:15%">
-        <col style="width:15%">
-        <col style="width:25%">
+        <col style="width:30%">
+        <col style="width:5%">
 
         <thead>
         <tr>
@@ -255,6 +256,9 @@
             </th>
             <th><a href="#" onClick='custom_sort("c_comment");'>Comment
                 <span style="float:none;" id="c_comment"></span></a>
+            </th>
+            <th>
+                <span style="float:none;" id="c_comment">Edit/Delete</span>
             </th>
         </tr>
         </thead>
@@ -375,6 +379,15 @@
             <td class="c_reinforce_type">{{ reinforce_type }}</td>
             <td class="c_time_left">{{ time_left }}<span id="c_remaining.{{ id }}" style="font-family: monospace;"></span></td>
             <td class="c_comment">{{ comment }}</td>
+            <td class="edit text-center">
+                <button class="btn btn-default" style="padding: 0 0 0 0;width: 30px; height: 30px">
+                    <i class="fa fa-pencil"></i>
+                </button>
+                &nbsp;&nbsp;
+                <button class="btn btn-default" style="padding: 0 0 0 0;width: 30px; height: 30px; float: right">
+                    <i class="fa fa-trash" ></i>
+                </button>
+            </td>
         </tr>
     </script>
 

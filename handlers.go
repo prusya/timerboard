@@ -152,20 +152,35 @@ func PostTimersHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	r.ParseForm()
-	days, err := strconv.Atoi(r.Form["daysleft"][0])
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	var days int
+	if r.Form["daysleft"][0] != "" {
+		days, err = strconv.Atoi(r.Form["daysleft"][0])
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		days = 0
 	}
-	hours, err := strconv.Atoi(r.Form["hoursleft"][0])
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	var hours int
+	if r.Form["hoursleft"][0] != "" {
+		hours, err = strconv.Atoi(r.Form["hoursleft"][0])
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		hours = 0
 	}
-	minutes, err := strconv.Atoi(r.Form["minutesleft"][0])
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	var minutes int
+	if r.Form["minutesleft"][0] != "" {
+		minutes, err = strconv.Atoi(r.Form["minutesleft"][0])
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		minutes = 0
 	}
 	err = dbCreateTimer(r.Form["regioninput"][0], r.Form["systeminput"][0],
 		r.Form["structureinput"][0], r.Form["rftypeinput"][0],
