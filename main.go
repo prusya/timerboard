@@ -75,6 +75,7 @@ func main() {
 
 	r.HandleFunc("/timers", GetTimersHandler).Methods("GET")
 	r.HandleFunc("/timers", PostTimersHandler).Methods("POST")
+	r.HandleFunc("/timers/{id}", PostUpdateTimersHandler).Methods("POST")
 	r.HandleFunc("/timers/{id}", DeleteTimersHandler).Methods("DELETE")
 
 	r.PathPrefix("/js/").Handler(http.FileServer(http.Dir("./static/")))

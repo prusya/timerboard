@@ -215,4 +215,65 @@ func DeleteTimersHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func PostUpdateTimersHandler(w http.ResponseWriter, r *http.Request) {
+	user, err := getUserFromSession(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !user.CanPost {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	r.ParseForm()
+	id, err := strconv.Atoi(r.Form["idinput"][0])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	var days int
+	if r.Form["daysleft"][0] != "" {
+		days, err = strconv.Atoi(r.Form["daysleft"][0])
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		days = 0
+	}
+	var hours int
+	if r.Form["hoursleft"][0] != "" {
+		hours, err = strconv.Atoi(r.Form["hoursleft"][0])
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		hours = 0
+	}
+	var minutes int
+	if r.Form["minutesleft"][0] != "" {
+		minutes, err = strconv.Atoi(r.Form["minutesleft"][0])
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		minutes = 0
+	}
+
+	err = dbUpdateTimer(id, r.Form["regioninput"][0], r.Form["systeminput"][0],
+		r.Form["structureinput"][0], r.Form["rftypeinput"][0],
+		r.Form["commentinput"][0], days, hours, minutes)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

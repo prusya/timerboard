@@ -95,7 +95,34 @@ func dbDeleteTimer(id int) error {
 	return nil
 }
 
-func dbUpdateTimer() () {}
+func dbUpdateTimer(id int, region string, system string, structureType string,
+	reinforceType string, comment string, daysLeft int, hoursLeft int,
+	minutesLeft int) error {
+	var timer Timer
+
+	err := db.One("ID", id, &timer)
+	if err != nil {
+		return err
+	}
+
+	startAt := time.Now().UTC().Add(time.Hour*time.Duration(daysLeft)*24 +
+		time.Hour*time.Duration(hoursLeft) +
+		time.Minute*time.Duration(minutesLeft))
+	err = db.Update(&Timer{
+		ID:   id,
+		Region:        region,
+		System:        system,
+		StructureType: structureType,
+		ReinforceType: reinforceType,
+		Comment:       comment,
+		DaysLeft:      daysLeft,
+		HoursLeft:     hoursLeft,
+		MinutesLeft:   minutesLeft,
+		StartAt:       startAt,
+	})
+
+	return nil
+}
 
 func dbCreateTimer(region string, system string, structureType string,
 	reinforceType string, comment string, daysLeft int, hoursLeft int,
