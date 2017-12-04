@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="keywords" content="timers, timerboard, timer board, eve online, eve, pvp, nullsec, sov, sovereignty, intel"/>
-    <meta name="description" content="timerboard.net shows a searchable view of all sovereignty-related event timers in EVE Online."/>
-    <meta name="author" content="Lucia Denniard"/>
+    <meta name="keywords" content="timers, timerboard, timer board, eve online,
+    eve, pvp, nullsec, sov, sovereignty, intel"/>
+    <meta name="description" content="tb.midas22.net shows a searchable view of
+    all sovereignty-related event timers in EVE Online plus allows adding
+    custom timers."/>
+    <meta name="author" content="Lucia Denniard, Ruslan Pozin"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="icon" type="image/png" href="https://timerboard.net/favicon.png">
     <link rel="shortcut icon" type="image/png" href="https://timerboard.net/favicon.png">
@@ -20,11 +23,12 @@
     <script src='/js/jsonpatch.min.js'></script>
     <script src='/js/reconnecting-websocket.min.js'></script>
     <script src='//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js'></script>
-    <link rel="stylesheet" type="text/css" href="//ajax.googleapis.com/ajax/libs/jqueryui/1/themes/flick/jquery-ui.css">
+    <link rel="stylesheet" type="text/css"
+          href="//ajax.googleapis.com/ajax/libs/jqueryui/1/themes/flick/jquery-ui.css">
     <script src="/js/tag-it.min.js" type="text/javascript" charset="utf-8"></script>
     <link href="/css/jquery.tagit.css" rel="stylesheet" type="text/css">
     <link rel='stylesheet' href='/css/nprogress.css'/>
-    <title>tb.midas22.ru</title>
+    <title>Midas 22 Timerboard</title>
 </head>
 <body>
 <nav class="navbar navbar-default">
@@ -71,7 +75,7 @@
 		margin-right: 10px;
 	}
 	.circlebox-small {
-		width: 80px;
+		width: 60px;
 		float: left;
 		margin-left: 10px;
 		margin-right: 10px;
@@ -107,7 +111,8 @@
 
     [[if .CanPost]]
     <!--<h3>Add Timer</h3>-->
-    <form action="/api/timers" method="post">
+    <form action="/timers" method="post">
+
     <div class="row">
         <div class="col-sm-3">
             <label for="regioninput">Region</label>
@@ -122,6 +127,7 @@
             <label for="rftypeinput">Reinforce Type</label>
         </div>
     </div>
+
     <div class="row">
         <div class="col-sm-3">
             <input name="regioninput" id="regioninput" type="text" placeholder="Region"
@@ -146,18 +152,19 @@
 
     <div class="row">
         <div class="col-sm-2">
-            <label for="regioninput">Days Left</label>
+            <label for="daysleft">Days Left</label>
         </div>
         <div class="col-sm-2">
-            <label for="systeminput">Hours Left</label>
+            <label for="hoursleft">Hours Left</label>
         </div>
         <div class="col-sm-2">
-            <label for="structureinput">Minutes Left</label>
+            <label for="minutesleft">Minutes Left</label>
         </div>
         <div class="col-sm-6">
-            <label for="rftypeinput">Comment</label>
+            <label for="commentinput">Comment</label>
         </div>
     </div>
+
     <div class="row">
         <div class="col-sm-2">
             <input name="daysleft" id="daysleft" type="number"
@@ -175,7 +182,7 @@
                    class="form-control" >
         </div>
         <div class="col-sm-6">
-            <input name="comment" id="comment" type="text"
+            <input name="commentinput" id="commentinput" type="text"
                    placeholder="Comment"
                    class="form-control" >
         </div>
@@ -191,9 +198,11 @@
 
     </form>
     [[end]]
+    <!--End Add Timer-->
 
     <datalist id="region_system_datalist"></datalist>
     <datalist id="rftype_datalist">
+        <option value="Vulnerable"></option>
         <option value="No Shield"></option>
         <option value="No Armor"></option>
         <option value="Freeport"></option>
@@ -217,16 +226,36 @@
 
     <div class="row"><span>&nbsp;</span></div>
 
+    <!--Table of custom timers-->
     [[if .CanRead]]
     <table class="table table-hover" id="custom_timers">
+        <col style="width:15%">
+        <col style="width:15%">
+        <col style="width:15%">
+        <col style="width:15%">
+        <col style="width:15%">
+        <col style="width:25%">
+
         <thead>
         <tr>
-            <th><a href="#" onClick='custom_sort("region");'>Region<span style="float:none;" id="region"></span></a></th>
-            <th><a href="#" onClick='custom_sort("system");'>System<span style="float:none;" id="system"></span></a></th>
-            <th><a href="#" onClick='custom_sort("structure_type");'>Type<span style="float:none;" id="structure_type"></span></a></th>
-            <th><a href="#" onClick='custom_sort("reinforce_type");'>Reinforce Type<span style="float:none;" id="reinforce_type"></span></a></th>
-            <th><a href="#" onClick='custom_sort("time_left");'>Time Left<span style="float:none;" id="time_left"></span></a></th>
-            <th><a href="#" onClick='custom_sort("comment");'>Comment<span style="float:none;" id="time_left"></span></a></th>
+            <th><a href="#" onClick='custom_sort("c_region");'>Region
+                <span style="float:none;" id="c_region"></span></a>
+            </th>
+            <th><a href="#" onClick='custom_sort("c_system");'>System
+                <span style="float:none;" id="c_system"></span></a>
+            </th>
+            <th><a href="#" onClick='custom_sort("c_structure_type");'>Type
+                <span style="float:none;" id="c_structure_type"></span></a>
+            </th>
+            <th><a href="#" onClick='custom_sort("c_reinforce_type");'>Reinforce Type
+                <span style="float:none;" id="c_reinforce_type"></span></a>
+            </th>
+            <th><a href="#" onClick='custom_sort("c_time_left");'>Time Left
+                <span style="float:none;" id="c_time_left"></span></a>
+            </th>
+            <th><a href="#" onClick='custom_sort("c_comment");'>Comment
+                <span style="float:none;" id="c_comment"></span></a>
+            </th>
         </tr>
         </thead>
         <tbody>
@@ -234,6 +263,7 @@
     </table>
     [[end]]
 
+    <!--Login with Eve Online button-->
     [[if not .Name]]
     <table class="table table-hover" id="custom_timers">
         <thead>
@@ -249,6 +279,7 @@
     </table>
     [[end]]
 
+    <!--If logged in, but cannot see timers-->
     [[if .Name]]
     [[if not .CanRead]]
     <div class="row">
@@ -265,37 +296,37 @@
     <div style="height:110px;">
         <div class="circleboxcontainer">
 	    <div class="circlebox-small">
-                <input id="uncontested" type="text" value="0" class="dial"
+            <input id="uncontested" type="text" value="0" class="dial"
                        data-readOnly="true" data-thickness="0.1"
                        data-width="60" data-height="60" data-fgColor="#8B4513">
-		<center>
-	                <p class="label" style="color: #8B4513">Uncontested</p>
-		</center>
-            </div>
-            <div class="circlebox-small">
-                <input id="active" type="text" value="0" class="dial"
+		    <center>
+                <p class="label" style="color: #8B4513">Uncontested</p>
+		    </center>
+        </div>
+        <div class="circlebox-small">
+            <input id="active" type="text" value="0" class="dial"
                        data-readOnly="true" data-thickness="0.1"
                        data-width="60" data-height="60" data-fgColor="#ff1a1a">
-		<center>
-	                <p class="label" style="color: #ff1a1a">Active</p>
-		</center>
-            </div>
-            <div class="circlebox-small">
-                <input id="upcoming" type="text" value="0" class="dial"
+		    <center>
+                <p class="label" style="color: #ff1a1a">Active</p>
+		    </center>
+        </div>
+        <div class="circlebox-small">
+            <input id="upcoming" type="text" value="0" class="dial"
                        data-readOnly="true" data-thickness="0.1"
                        data-width="60" data-height="60">
-		<center>
-	                <p class="label" style="color: #87CEEB">Upcoming</p>
-		</center>
-            </div>
-            <div class="circlebox-small">
-                <input id="start" type="text" value="0" class="dial"
+            <center>
+                <p class="label" style="color: #87CEEB">Upcoming</p>
+            </center>
+        </div>
+        <div class="circlebox-small">
+            <input id="start" type="text" value="0" class="dial"
                        data-readOnly="true" data-thickness="0.1"
                        data-width="60" data-height="60" data-fgColor="#FF8C00">
-		<center>
-	                <p class="label" style="color: #FF8C00">Start in <4hrs</p>
-		</center>
-            </div>
+            <center>
+                <p class="label" style="color: #FF8C00">Start in <4hrs</p>
+            </center>
+        </div>
         </div>
     </div>
 
@@ -337,13 +368,13 @@
     </script>
 
     <script type="text/template" id="custom_timer_template">
-        <tr id="{{ id }}" class="custom_timer_row">
-            <td class="region">{{ region }}</td>
-            <td class="region">{{ system }}</td>
-            <td class="region">{{ structure_type }}</td>
-            <td class="region">{{ rf_type }}</td>
-            <td class="region">{{ time_left }}<span id="cremaining.{{ id }}" style="font-family: monospace;"></span></td>
-            <td class="region">{{ comment }}</td>
+        <tr id="c_{{ id }}" class="custom_timer_row">
+            <td class="c_region">{{ region }}</td>
+            <td class="c_system">{{ system }}</td>
+            <td class="c_structure_type">{{ structure_type }}</td>
+            <td class="c_reinforce_type">{{ reinforce_type }}</td>
+            <td class="c_time_left">{{ time_left }}<span id="c_remaining.{{ id }}" style="font-family: monospace;"></span></td>
+            <td class="c_comment">{{ comment }}</td>
         </tr>
     </script>
 
@@ -401,13 +432,15 @@
         timers = {};
         var sortkey = "time";
         var sort_asc = false;
+        var c_sortkey = "c_time_left";
+        var c_sort_asc = true;
 
 
         function do_sort() {
             $(".timer_row").tsort("."+sortkey, {order: sort_asc ? "asc" : "desc"});
         }
         function custom_do_sort() {
-            $(".timer_row").tsort("."+sortkey, {order: sort_asc ? "asc" : "desc"});
+            $(".custom_timer_row").tsort("."+c_sortkey, {order: c_sort_asc ? "asc" : "desc"});
         }
 
         var ICON_ASC = '<i class="fa fa-sort-amount-asc"/></i>';
@@ -425,15 +458,15 @@
             do_sort();
         }
         function custom_sort(field) {
-            if (sortkey==field) {
-                sort_asc = !sort_asc;
-                $("#"+sortkey)[0].innerHTML = sort_asc ? ICON_ASC : ICON_DESC;
+            if (c_sortkey==field) {
+                c_sort_asc = !c_sort_asc;
+                $("#"+c_sortkey)[0].innerHTML = c_sort_asc ? ICON_ASC : ICON_DESC;
             } else {
-                $("#"+sortkey)[0].innerHTML=""
-                sortkey = field;
-                $("#"+sortkey)[0].innerHTML = sort_asc ? ICON_ASC : ICON_DESC;
+                $("#"+c_sortkey)[0].innerHTML=""
+                c_sortkey = field;
+                $("#"+c_sortkey)[0].innerHTML = c_sort_asc ? ICON_ASC : ICON_DESC;
             }
-            do_sort();
+            custom_do_sort();
         }
 
         function add_timer(i, timer) {
@@ -458,7 +491,7 @@
                         if (moment.utc(timer["start_at"]) < new Date()) {
                             style = "<span class='text-danger strong'>-"
                         }
-                        document.getElementById("cremaining." + timer["id"]).innerHTML = style+ts.days+"d "+ts.hours+"h "+ts.minutes+"m "+ts.seconds+"s </span>";
+                        document.getElementById("c_remaining." + timer["id"]).innerHTML = style+ts.days+"d "+ts.hours+"h "+ts.minutes+"m "+ts.seconds+"s </span>";
                     },
                     moment.utc(timer["start_at"]),
                     countdown.DAYS|countdown.HOURS|countdown.MINUTES|countdown.SECONDS);
@@ -496,7 +529,7 @@
         });
         $.ajax({
             type: "GET",
-            url: "/api/timers",
+            url: "/timers",
             cache: false,
             dataType: 'json',
             success: function (data) {
@@ -508,7 +541,7 @@
                         system: e["system"],
                         comment: e["comment"],
                         id: e["id"],
-                        rf_type: e["reinforce_type"],
+                        reinforce_type: e["reinforce_type"],
                         structure_type: e["structure_type"],
                         start_at: e["start_at"],
                     };
@@ -516,13 +549,14 @@
                     custom_add_timer(timer);
 
                 });
-
+                custom_do_sort();
             },
             error: function (data) {
                 console.log("ERROR")
                 console.log(data)
             }
         });
+
 
 
 
@@ -537,8 +571,8 @@
         var timerBuffer = {};
 
         // new stuff
-        websocket = new ReconnectingWebSocket("wss://api.pizza.moe/diffstream/sovereignty/campaigns/");
-        // websocket = new ReconnectingWebSocket("");
+        // websocket = new ReconnectingWebSocket("wss://api.pizza.moe/diffstream/sovereignty/campaigns/");
+        websocket = new ReconnectingWebSocket("");
         websocket.onopen = function(evt) {  };
         websocket.onclose = function(evt) {  };
         websocket.onmessage = function(evt) {
@@ -546,7 +580,6 @@
             var active = 0;
             NProgress.start();
             var event = JSON.parse(evt["data"])
-            console.log(event);
             if (event.hasOwnProperty('status')) {
                 if ($("#alerts").is(":empty")) {
                     $("#alerts").append(Mustache.to_html($("#error_template").html(), {"message": "Unable to pull new data from CREST, displaying cached data. This message will disappear if CREST becomes available again."}))
@@ -556,12 +589,9 @@
             }
             // load our data
             if ("initial" in event) {
-                console.log("initial mode");
                 timerBuffer = event["initial"];
             }
             if ("diff" in event) {
-                console.log("diff mode");
-                console.log(event["diff"]);
                 timerBuffer = jsonpatch.apply_patch(timerBuffer, event["diff"])
             }
             var idsrecvd = [];
@@ -749,13 +779,8 @@
         }
 
         if (window.location.pathname.length>1) {
-			    console.log(window.location.pathname.slice(1));
-			    console.log(decodeURI(window.location.pathname.slice(1)));
-			    console.log(decodeURI(window.location.pathname.slice(1)).split(","));
                 storedFilter = decodeURI(window.location.pathname.slice(1)).split(",");
-				console.log(storedFilter);
 	         	storedFilter.map(function(t) {$("#filter").tagit("createTag", t)});
-				console.log(storedFilter);
                 doFilter();
         };
 
@@ -768,13 +793,6 @@
 
     </script>
 
-        </div>
-        <hr />
-        <footer>
-            <div class="container">
-        <p class=".small text-center text-muted" id="counter">0 timers currently running.</p>
-                <p class=".small text-center text-muted">This site is a deployment of <a href="https://github.com/xxpizzaxx/timerboard-net-fozziesov">timerboard-net-fozziesov</a>, fed by data from <a href="https://github.com/xxpizzaxx/pizza-sov-relay">pizza-sov-relay</a> which are both available under the <a href="http://opensource.org/licenses/MIT">MIT License</a>.</p>
-            </div>
-        </footer>
-    </body>
+</div>
+</body>
 </html>

@@ -85,7 +85,15 @@ func GetUsersHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	err = templates["users"].ExecuteTemplate(w, "users", users)
+
+	var data struct {
+		User  User
+		Users []User
+	}
+	data.User = user
+	data.Users = users
+
+	err = templates["users"].ExecuteTemplate(w, "users.html", data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

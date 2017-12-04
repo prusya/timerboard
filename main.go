@@ -9,6 +9,9 @@ import (
 	"encoding/json"
 	"github.com/markbates/goth/gothic"
 	"github.com/gorilla/sessions"
+	"github.com/markbates/goth"
+	"github.com/markbates/goth/providers/eveonline"
+	"math"
 )
 
 var db *storm.DB
@@ -27,7 +30,8 @@ var cookieStore *sessions.CookieStore
 var gothicStore *sessions.FilesystemStore
 
 func main() {
-	db, err := storm.Open("my.db")
+	var err error
+	db, err = storm.Open("my.db")
 	if err != nil {
 		panic(err)
 	}
@@ -48,8 +52,16 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	cookieStore = sessions.NewCookieStore([]byte(config.SessionsKey))
+
 	gothicStore = sessions.NewFilesystemStore(".", []byte(config.GothicKey))
+	gothic.Store = gothicStore
+	gothicStore.MaxLength(math.MaxInt64)
+	goth.UseProviders(
+		eveonline.New(config.EveClientId, config.EveClientSecret,
+			config.EveCallback, ),
+	)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", GetIndexHandler).Methods("GET")
