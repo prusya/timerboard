@@ -322,6 +322,11 @@ func PostStoredFilterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if user.Name == "" {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
 	r.ParseForm()
 	filter := r.Form["filterinput"][0]
 
