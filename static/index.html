@@ -738,6 +738,10 @@
             4: "Freeport"
         };
 
+        function filter_timer(timer) {
+            return moment.utc().diff(timer["start_at"], "hours") < 1;
+        }
+
         $.each(Object.keys(typeLookup), function(i,k) {addsearchtag(typeLookup[k])});
         $.each(Object.keys(system2region), function(i,k) {addsearchtag
         (system2region[k]); addsearchtag(k)});
@@ -749,7 +753,8 @@
             success: function (data) {
                 console.log("Get custom timers SUCCESS")
                 console.log(data)
-                data.forEach(function(e){
+                var filtered_data = data.filter(filter_timer)
+                filtered_data.forEach(function(e){
                     var timer = {
                         region: e["region"],
                         system: e["system"],
