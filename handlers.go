@@ -314,3 +314,22 @@ func PostUpdateTimersHandler(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
+
+func PostStoredFilterHandler(w http.ResponseWriter, r *http.Request) {
+	user, err := getUserFromSession(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	r.ParseForm()
+	filter := r.Form["filterinput"][0]
+
+	err = dbUpdateStoredFilter(user.Name, filter)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}

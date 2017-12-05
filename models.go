@@ -11,7 +11,7 @@ type User struct {
 	CanRead      bool     `json:"can_read"`
 	CanPost      bool     `json:"can_post"`
 	IsAdmin      bool     `json:"is_admin"`
-	RegionFilter []string `json:"region_filter"`
+	StoredFilter string `json:"stored_filter"`
 }
 
 func (u User) String() string {
@@ -43,6 +43,23 @@ func dbUpdateUser(name string, canRead bool, canPost bool,
 	user.CanRead = canRead
 	user.CanPost = canPost
 	user.IsAdmin = isAdmin
+	err = db.Save(&user)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func dbUpdateStoredFilter(name string, storedFilter string) error {
+	var user User
+
+	err := db.One("Name", name, &user)
+	if err != nil {
+		return err
+	}
+
+	user.StoredFilter = storedFilter
 	err = db.Save(&user)
 	if err != nil {
 		return err

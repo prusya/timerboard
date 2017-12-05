@@ -78,6 +78,8 @@ func main() {
 	r.HandleFunc("/timers/{id}", PostUpdateTimersHandler).Methods("POST")
 	r.HandleFunc("/timers/{id}", DeleteTimersHandler).Methods("DELETE")
 
+	r.HandleFunc("/filter", PostStoredFilterHandler).Methods("POST")
+
 	r.PathPrefix("/js/").Handler(http.FileServer(http.Dir("./static/")))
 	r.PathPrefix("/css/").Handler(http.FileServer(http.Dir("./static/")))
 	r.PathPrefix("/fonts/").Handler(http.FileServer(http.Dir("./static/")))

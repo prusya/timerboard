@@ -253,13 +253,19 @@
     </table>
     [[end]]
 
+    <h2>Data Filter (use | for OR filter: Immensea|Insmother)</h2>
+
     <div class="row">
-        <div class="col-sm-12">
-        <h3>
+        <div class="col-sm-10">
+        <h4>
             <input id="filter"
                    placeholder="Filter by typing here, separate multiple terms by commas"
                    autofocus style="position:absolute; width: 100%"/>
-	    </h3>
+	    </h4>
+        </div>
+        <div class="col-sm-2">
+            <h4></h4>
+            <button class="btn btn-primary btn-block" onClick='save_filter()'>Save</button>
         </div>
     </div>
 
@@ -527,6 +533,25 @@
             }
         }
 
+        function save_filter() {
+            var filter = "";
+            var arr = $('.tagit-label')
+            $.each(arr, function(i,e){filter += e.innerText + ','})
+            filter = filter.replace(/,$/, '')
+            $.ajax({
+                type: "POST",
+                url: "/filter",
+                data: {filterinput: filter},
+                success: function (data) {
+                    console.log("Store Filter SUCCESS");
+                },
+                error: function (data) {
+                    console.log("CANNOT STORE FILTER");
+                    console.log(data);
+                }
+            })
+        }
+
         function remove_timer(t, row) {
             if (confirm('Remove timer?')) {
                 $.ajax({
@@ -581,7 +606,9 @@
             }
         }
 
-        var storedFilter = [];
+        var filter_from_template = "[[.StoredFilter]]";
+        var storedFilter = [filter_from_template];
+
 
         $('#filter').tagit({
                 availableTags: searchtags,
@@ -598,6 +625,7 @@
                 allowSpaces: true,
                 caseSensitive: false
             });
+        $("#filter").tagit("createTag", filter_from_template)
 
         // set up timer data
         timers = {};
@@ -825,7 +853,7 @@
             do_sort();
             NProgress.inc();
             doFilter();
-            document.getElementById("counter").innerHTML = Object.keys(timers).length +" timers currently running."
+            // document.getElementById("counter").innerHTML = Object.keys(timers).length +" timers currently running."
             NProgress.done();
         };
         websocket.onerror = function(evt) {  };
@@ -833,16 +861,8 @@
 
         function doFilter() {
             var warmode = false;
-            // update link
-            $("#externallink a").attr("href", window.location.origin+"/"+encodeURI(storedFilter.join(",")));
-            if (storedFilter.length == 0) {
-                $("#externallink a").hide()
-                $("ul.tagit").css("width", "100%")
-            } else {
-                $("#externallink a").show()
-                $("ul.tagit").css("width", "96%")
-            }
-            $("tbody tr").hide();
+            $("#timers tbody tr").hide();
+            $("#custom_timers tbody tr").hide();
             // filtering
             var terms = storedFilter.map(function (i) {
                 if (i=="DroneWar") {
@@ -851,11 +871,29 @@
                 }
                 return i.trim().toLowerCase()
             });
-            var tohide = $("tbody tr").filter(function() {var target = $(this).text().toLowerCase() + $(this).data().tags; return terms.every(function(term) {return target.search(term) == -1})});
-            var toshow = $("tbody tr").filter(function() {var target = $(this).text().toLowerCase() + $(this).data().tags; return terms.every(function(term) {return target.search(term) != -1})});
+            var tohide = $("#timers tbody tr").filter(
+                function() {
+                    var target = $(this).text().toLowerCase() + $(this).data().tags;
+                    return terms.every(
+                        function(term) {
+                            return target.search(term) == -1
+                        })
+                });
+            var toshow = $("#timers tbody tr").filter(function() {var target = $(this).text().toLowerCase() + $(this).data().tags; return terms.every(function(term) {return target.search(term) != -1})});
             toshow.show();
+            var c_toshow = $("#custom_timers tbody tr").filter(
+                function() {
+                    var target = $(this).text().toLowerCase();
+                    return terms.every(
+                        function(term) {
+                            return target.search(term) != -1
+                        })
+                });
+
+            c_toshow.show();
             // category counters
             var total = toshow.length;
+
             var active = toshow.filter(function() {return $(this).data().tags.split(",").indexOf("active") > -1}).length
             var upcoming = toshow.filter(function() {return $(this).data().tags.split(",").indexOf("upcoming") > -1}).length
             var start = toshow.filter(function() {return $(this).data().tags.split(",").indexOf("start") > -1}).length
