@@ -7932,3 +7932,9 @@ var system2region = {
     "RIT-A7": "Feythabolis",
     "TI0-AX": "UUA-F4"
 }
+
+var region2system = {};
+for (var key in system2region) {
+  if (region2system[system2region[key]] == null) {region2system[system2region[key]] = []}
+  region2system[system2region[key]].push(key)
+}

@@ -131,12 +131,12 @@
     <div class="row">
         <div class="col-sm-3">
             <input name="regioninput" id="regioninput" type="text" placeholder="Region"
-                   class="form-control" list="region_system_datalist">
+                   class="form-control" list="region_datalist">
         </div>
         <div class="col-sm-3">
             <input name="systeminput" id="systeminput" type="text"
                    placeholder="System"
-                   class="form-control" list="region_system_datalist">
+                   class="form-control" list="system_datalist">
         </div>
         <div class="col-sm-3">
             <input name="structureinput" id="structureinput" type="text"
@@ -211,7 +211,9 @@
     [[end]]
     [[end]]
 
-    <datalist id="region_system_datalist"></datalist>
+    <datalist id="region_datalist"></datalist>
+    <datalist id="system_datalist"></datalist>
+    <datalist id="e_system_datalist"></datalist>
     <datalist id="rftype_datalist">
         <option value="Vulnerable"></option>
         <option value="No Shield"></option>
@@ -418,38 +420,38 @@
                hidden style="display: none">
     <div class="row">
         <div class="col-sm-3">
-            <label for="regioninput">Region</label>
+            <label for="e_regioninput">Region</label>
         </div>
         <div class="col-sm-3">
-            <label for="systeminput">System</label>
+            <label for="e_systeminput">System</label>
         </div>
         <div class="col-sm-3">
-            <label for="structureinput">Structure Type</label>
+            <label for="e_structureinput">Structure Type</label>
         </div>
         <div class="col-sm-3">
-            <label for="rftypeinput">Reinforce Type</label>
+            <label for="e_rftypeinput">Reinforce Type</label>
         </div>
     </div>
     <div class="row">
         <div class="col-sm-3">
-            <input name="regioninput" id="regioninput" type="text" placeholder="Region"
-                   class="form-control" list="region_system_datalist"
+            <input name="regioninput" id="e_regioninput" type="text" placeholder="Region"
+                   class="form-control" list="region_datalist"
             value="{{regioninput}}">
         </div>
         <div class="col-sm-3">
-            <input name="systeminput" id="systeminput" type="text"
+            <input name="systeminput" id="e_systeminput" type="text"
                    placeholder="System"
-                   class="form-control" list="region_system_datalist"
+                   class="form-control" list="e_system_datalist"
             value="{{systeminput}}">
         </div>
         <div class="col-sm-3">
-            <input name="structureinput" id="structureinput" type="text"
+            <input name="structureinput" id="e_structureinput" type="text"
                    placeholder="Structure Type"
                    class="form-control" list="structuretype_datalist"
             value="{{structureinput}}">
         </div>
         <div class="col-sm-3">
-            <input name="rftypeinput" id="rftypeinput" type="text"
+            <input name="rftypeinput" id="e_rftypeinput" type="text"
                    placeholder="Reinforce Type"
                    class="form-control" list="rftype_datalist"
             value="{{rftypeinput}}">
@@ -471,22 +473,22 @@
     </div>
     <div class="row">
         <div class="col-sm-2">
-            <input name="daysleft" id="daysleft" type="number"
+            <input name="daysleft" id="e_daysleft" type="number"
                    placeholder="0"
                    class="form-control" value="{{daysleft}}">
         </div>
         <div class="col-sm-2">
-            <input name="hoursleft" id="hoursleft" type="number"
+            <input name="hoursleft" id="e_hoursleft" type="number"
                    placeholder="0"
                    class="form-control" value="{{hoursleft}}">
         </div>
         <div class="col-sm-2">
-            <input name="minutesleft" id="minutesleft" type="number"
+            <input name="minutesleft" id="e_minutesleft" type="number"
                    placeholder="0"
                    class="form-control" value="{{minutesleft}}">
         </div>
         <div class="col-sm-6">
-            <input name="commentinput" id="commentinput" type="text"
+            <input name="commentinput" id="e_commentinput" type="text"
                    placeholder="Comment"
                    class="form-control" value="{{commentinput}}">
         </div>
@@ -603,6 +605,26 @@
                 }
                 var completed = Mustache.to_html(template, timer);
                 $(row).closest("table").after(completed);
+                $('#e_regioninput').on('input', function() {
+                    if (region2system[$('#e_regioninput').val()] != null) {
+                        $('#e_system_datalist')[0].innerHTML = '';
+                        var list = document.getElementById('e_system_datalist');
+                        region2system[$('#e_regioninput').val()].forEach(function(e) {
+                            var option = document.createElement('option');
+                            option.value = e;
+                            list.appendChild(option);
+                        })
+                    }
+                    if ($('#e_regioninput').val() == "") {
+                        $('#e_system_datalist')[0].innerHTML = '';
+                        var list = document.getElementById('e_system_datalist');
+                        for (var key in system2region) {
+                            var option = document.createElement('option');
+                            option.value = key;
+                            list.appendChild(option);
+                        }
+                    }
+                });
             }
         }
 
@@ -719,12 +741,6 @@
         $.each(Object.keys(typeLookup), function(i,k) {addsearchtag(typeLookup[k])});
         $.each(Object.keys(system2region), function(i,k) {addsearchtag
         (system2region[k]); addsearchtag(k)});
-        var list = document.getElementById('region_system_datalist');
-        searchtags.forEach(function(item){
-           var option = document.createElement('option');
-           option.value = item;
-           list.appendChild(option);
-        });
         $.ajax({
             type: "GET",
             url: "/timers",
@@ -992,6 +1008,47 @@
         }, 10000);
 	$(".tagit input").focus();
         sort("time");
+
+    $('document').ready(function(){
+        var list = document.getElementById('region_datalist');
+        for (var region in region2system) {
+            var option = document.createElement('option');
+            option.value = region;
+            list.appendChild(option);
+        }
+        var list = document.getElementById('system_datalist');
+        for (var key in system2region) {
+            var option = document.createElement('option');
+            option.value = key;
+            list.appendChild(option);
+        }
+        var list2 = document.getElementById('e_system_datalist');
+        for (var key in system2region) {
+            var option = document.createElement('option');
+            option.value = key;
+            list2.appendChild(option);
+        }
+        $('#regioninput').on('input', function() {
+            if (region2system[$('#regioninput').val()] != null) {
+                $('#system_datalist')[0].innerHTML = '';
+                var list = document.getElementById('system_datalist');
+                region2system[$('#regioninput').val()].forEach(function(e) {
+                    var option = document.createElement('option');
+                    option.value = e;
+                    list.appendChild(option);
+                })
+            }
+            if ($('#regioninput').val() == "") {
+                $('#system_datalist')[0].innerHTML = '';
+                var list = document.getElementById('system_datalist');
+                for (var key in system2region) {
+                    var option = document.createElement('option');
+                    option.value = key;
+                    list.appendChild(option);
+                }
+            }
+        });
+    });
     </script>
 
 </div>
